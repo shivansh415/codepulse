@@ -8,8 +8,8 @@ const getStats = async (req, res, next) => {
       User.countDocuments(),
       PlatformStats.countDocuments({ syncStatus: 'ok' }),
       PlatformStats.countDocuments(),
-      redis.get('metrics:cache:hits'),
-      redis.get('metrics:cache:misses'),
+      redis ? redis.get('metrics:cache:hits') : null,
+      redis ? redis.get('metrics:cache:misses') : null,
     ]);
 
     const hitsNum = Number(hits) || 0;

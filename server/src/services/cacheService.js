@@ -1,6 +1,7 @@
 const redis = require('../config/redisClient');
 
 const getCache = async (key) => {
+  if (!redis) return null;
   try {
     const raw = await redis.get(key);
     if (raw) {
@@ -16,6 +17,7 @@ const getCache = async (key) => {
 };
 
 const setCache = async (key, value, ttlSeconds) => {
+  if (!redis) return;
   try {
     await redis.set(key, JSON.stringify(value), 'EX', ttlSeconds);
   } catch (err) {
@@ -24,6 +26,7 @@ const setCache = async (key, value, ttlSeconds) => {
 };
 
 const deleteCache = async (key) => {
+  if (!redis) return;
   try {
     await redis.del(key);
   } catch (err) {

@@ -1,10 +1,18 @@
 const Redis = require('ioredis');
 
-const redis = new Redis(process.env.REDIS_URL, {
-  maxRetriesPerRequest: 3,
-});
+// KV_URL is the name injected by Vercel's Upstash integration. Without a URL, caching is disabled.
+const url = process.env.REDIS_URL || process.env.KV_URL;
 
-redis.on('connect', () => console.log('Redis connected'));
-redis.on('error', (err) => console.error('Redis error:', err.message));
+let redis = null;
+if (url) {
+  redis = new Redis(url, {
+    maxRetriesPerRequest: 3,
+  });
+
+  redis.on('connect', () => console.log('Redis connected'));
+  redis.on('error', (err) => console.error('Redis error:', err.message));
+} else {
+  console.log('REDIS_URL not set, running without cache');
+}
 
 module.exports = redis;

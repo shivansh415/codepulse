@@ -9,8 +9,12 @@ const contestRoutes = require('./routes/contestRoutes');
 const communityRoutes = require('./routes/communityRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const connectDB = require('./config/db');
 
 const app = express();
+
+// Behind Vercel's proxy, trust X-Forwarded-For so rate limiting sees the real client IP
+if (process.env.VERCEL) app.set('trust proxy', 1);
 
 const allowedOrigins = (process.env.CLIENT_URL || '')
   .split(',')
@@ -31,6 +35,17 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+
+// Make sure the DB is connected before any route runs (no-op once connected)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/platforms', platformRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
