@@ -18,6 +18,23 @@ Everything runs on your own machine: local MongoDB and Redis instead of Atlas/Up
 
 Database files are stored in `~/codepulse-data`. Logs are in `~/codepulse-data/logs`. The backend uses port **5050** because macOS AirPlay Receiver occupies port 5000. Google Calendar reminders need your own Google OAuth keys in `server/.env`; everything else works without them.
 
+## Deploying to Vercel
+
+The app is deployed as two Vercel projects:
+
+| Project | Folder | URL |
+|---|---|---|
+| `codepulse-shivansh` (frontend) | `client/` | https://codepulse-shivansh.vercel.app |
+| `codepulse-shivansh-api` (backend) | `server/` | https://codepulse-shivansh-api.vercel.app/api/health |
+
+Backend env vars: `MONGO_URI` (or `MONGODB_URI` from the Vercel MongoDB Atlas integration), `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_URL`, `APP_URL`, and optionally `REDIS_URL`/`KV_URL` (Upstash; without it caching is skipped). Frontend env var: `VITE_API_URL` = backend URL + `/api`. On Vercel the backend exports the Express app (see `server/server.js`), so the per-minute cache-warming cron only runs locally.
+
+Redeploy after changes:
+```bash
+cd server && npx vercel deploy --prod
+cd client && npx vercel deploy --prod
+```
+
 ---
 
 **Original live demo:** https://codepulse-theta-two.vercel.app (hosted by the original author)
