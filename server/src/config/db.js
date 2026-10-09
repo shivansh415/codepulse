@@ -7,6 +7,14 @@ const connectDB = () => {
   if (!connection) {
     // MONGODB_URI is the name injected by Vercel's MongoDB Atlas integration
     const uri = process.env.MONGO_URI || process.env.MONGODB_URI;
+    if (!uri) {
+      const err = new Error('Database is not configured yet. Please try again later.');
+      if (!process.env.VERCEL) {
+        console.error('MONGO_URI is missing in server/.env');
+        process.exit(1);
+      }
+      return Promise.reject(err);
+    }
     connection = mongoose
       .connect(uri)
       .then(() => console.log('MongoDB connected'))
